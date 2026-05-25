@@ -16595,6 +16595,7 @@
     {
       "title": "Bundle Builder",
       "handle": "bundle-builder",
+      "template_suffix": "bundle-builder",
       "body_html": ""
     },
     {

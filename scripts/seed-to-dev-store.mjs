@@ -356,7 +356,14 @@ if (WRITE) {
 console.log(`\n=== Pages (${seed.pages.length}) ===`);
 if (WRITE) {
   const res = await pool(seed.pages, async (p) => {
-    await api('POST', 'pages.json', { page: { title: p.title, handle: p.handle, body_html: p.body_html, published: true } });
+    const pagePayload = {
+      title: p.title,
+      handle: p.handle,
+      body_html: p.body_html,
+      published: true,
+    };
+    if (p.template_suffix) pagePayload.template_suffix = p.template_suffix;
+    await api('POST', 'pages.json', { page: pagePayload });
   });
   created.pages = res.ok;
   console.log(`  ${res.ok} created, ${res.fail} failed`);
