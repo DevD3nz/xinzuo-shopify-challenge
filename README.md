@@ -92,7 +92,7 @@ Submit your repo + Loom + `NOTE.md` summary on the [hiring portal](https://apply
 
 ## Submission (this fork)
 
-- **Loom walkthrough:** `https://www.loom.com/share/YOUR_LOOM_ID` *(replace after recording — max 3 min, face + screen)*
+- **Loom walkthrough:** `https://www.loom.com/share/8b9334e3017446f7aa2d7f826a7ae060` *(replace after recording — max 3 min, face + screen)*
 - **Fix summary:** see [NOTE.md](./NOTE.md)
 - **Evidence:** `before.png` / `after.png` in repo root
 
