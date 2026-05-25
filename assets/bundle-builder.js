@@ -90,6 +90,14 @@ class BundleBuilderComponent extends Component {
     this.#updateUI();
   }
 
+  handleCardKeydown(event) {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    const card = event.target.closest('.bundle-card');
+    if (!card) return;
+    event.preventDefault();
+    this.handleCardClick(event);
+  }
+
   async handleAddToCart() {
     if (this.#isAddingToCart) return;
     if (this.#selectedProductIds.size < this.#minItems) return;
@@ -137,17 +145,25 @@ class BundleBuilderComponent extends Component {
         body: JSON.stringify({ items }),
       });
 
-      // Open cart drawer so the customer can review their bundle
-      // before deciding to checkout. The discount code will be applied
-      // at checkout via the cart drawer's checkout button.
-      let cart = await fetch('/cart.js').then((r) => r.json());
+      const [sectionsRes, cartRes] = await Promise.all([
+        fetch('/?sections=cart-drawer,cart-icon-bubble'),
+        fetch('/cart.js'),
+      ]);
+      const sections = await sectionsRes.json();
+      const cart = await cartRes.json();
+
+      document.dispatchEvent(
+        new CustomEvent('cart:update', {
+          detail: { data: { itemCount: cart.item_count, sections } },
+        })
+      );
 
       document.dispatchEvent(
         new CartAddEvent({}, this.dataset.sectionId, {
           source: 'bundle-builder',
           itemCount: cart.item_count,
           productId: '',
-          sections: [],
+          sections,
         })
       );
 

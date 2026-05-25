@@ -16,91 +16,104 @@
           "type": "series_collection",
           "settings": {
             "collection": "xinzuo-mo-series-knives",
-            "tab_label": "MO"
+            "tab_label": "MO",
+            "series_tag": "series:mo"
           }
         },
         "series_lan": {
           "type": "series_collection",
           "settings": {
             "collection": "xinzuo-lan-series-knives",
-            "tab_label": "LAN"
+            "tab_label": "LAN",
+            "series_tag": "series:lan"
           }
         },
         "series_supreme": {
           "type": "series_collection",
           "settings": {
             "collection": "hezhen-supreme-series-knives",
-            "tab_label": "Supreme"
+            "tab_label": "Supreme",
+            "series_tag": "series:supreme"
           }
         },
         "series_retro": {
           "type": "series_collection",
           "settings": {
             "collection": "hezhen-retro-series-knives",
-            "tab_label": "Retro"
+            "tab_label": "Retro",
+            "series_tag": "series:retro"
           }
         },
         "series_zhen_x05z": {
           "type": "series_collection",
           "settings": {
             "collection": "zhen-x05z-series",
-            "tab_label": "X05Z Zhen"
+            "tab_label": "X05Z Zhen",
+            "series_tag": "series:xz05"
           }
         },
         "series_zhen_pm8m": {
           "type": "series_collection",
           "settings": {
             "collection": "pm8m-zhen-series",
-            "tab_label": "PM8M Zhen"
+            "tab_label": "PM8M Zhen",
+            "series_tag": "series:pm8m"
           }
         },
         "series_zhen_pm8o": {
           "type": "series_collection",
           "settings": {
             "collection": "pm8o-zhen-series",
-            "tab_label": "PM8O Zhen"
+            "tab_label": "PM8O Zhen",
+            "series_tag": "series:zhen"
           }
         },
         "series_elegant": {
           "type": "series_collection",
           "settings": {
             "collection": "b38l-elegant-series",
-            "tab_label": "B38L Elegant"
+            "tab_label": "B38L Elegant",
+            "series_tag": "series:elegant"
           }
         },
         "series_yu": {
           "type": "series_collection",
           "settings": {
             "collection": "b13r-yu-series",
-            "tab_label": "B13R Yu"
+            "tab_label": "B13R Yu",
+            "series_tag": "series:yu"
           }
         },
         "series_yi": {
           "type": "series_collection",
           "settings": {
             "collection": "b27-yi-series",
-            "tab_label": "B27 Yi"
+            "tab_label": "B27 Yi",
+            "series_tag": "series:yi"
           }
         },
         "series_master": {
           "type": "series_collection",
           "settings": {
             "collection": "b30-master-series",
-            "tab_label": "B30 Master"
+            "tab_label": "B30 Master",
+            "series_tag": "series:master"
           }
         },
         "series_ji": {
           "type": "series_collection",
           "settings": {
             "collection": "x08-ji-series",
-            "tab_label": "X08 Ji"
+            "tab_label": "X08 Ji",
+            "series_tag": "series:ji"
           }
         },
         "series_pin": {
           "type": "series_collection",
           "settings": {
             "collection": "x020-pin-series",
-            "tab_label": "X020 Pin"
+            "tab_label": "X020 Pin",
+            "series_tag": "series:pin"
           }
         },
         "tier_1": {

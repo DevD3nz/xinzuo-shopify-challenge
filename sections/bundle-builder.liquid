@@ -132,12 +132,23 @@
     {%- if has_series -%}
       {%- assign seen_product_ids = "," -%}
       {%- assign has_products = false -%}
+      {%- assign fallback_catalog = collections['all-products'] -%}
 
-      {%- comment -%} Pre-scan to check if any products exist {%- endcomment -%}
+      {%- comment -%} Pre-scan: collection products or tag fallback on dev stores with empty manual collections {%- endcomment -%}
       {%- for block in series_blocks -%}
         {%- if block.settings.collection != blank and block.settings.collection.products.size > 0 -%}
           {%- assign has_products = true -%}
           {%- break -%}
+        {%- elsif block.settings.series_tag != blank and fallback_catalog != blank -%}
+          {%- for product in fallback_catalog.products -%}
+            {%- if product.tags contains block.settings.series_tag -%}
+              {%- assign has_products = true -%}
+              {%- break -%}
+            {%- endif -%}
+          {%- endfor -%}
+          {%- if has_products -%}
+            {%- break -%}
+          {%- endif -%}
         {%- endif -%}
       {%- endfor -%}
 
@@ -146,107 +157,72 @@
           {%- assign global_index = 0 -%}
           {%- for block in series_blocks -%}
             {%- assign coll = block.settings.collection -%}
-            {%- if coll != blank -%}
-              {%- for product in coll.products -%}
-                {%- unless product.tags contains 'engraving-fee' -%}
-                  {%- comment -%} Skip sold-out products {%- endcomment -%}
-                  {%- unless product.available -%}
-                    {%- continue -%}
-                  {%- endunless -%}
+            {%- assign series_tag = block.settings.series_tag -%}
+            {%- if coll == blank -%}
+              {%- continue -%}
+            {%- endif -%}
 
-                  {%- comment -%} Deduplication check {%- endcomment -%}
-                  {%- assign pid_check = "," | append: product.id | append: "," -%}
-                  {%- if seen_product_ids contains pid_check -%}
-                    {%- continue -%}
+            {%- assign use_tag_fallback = false -%}
+            {%- if coll.products.size == 0 and series_tag != blank and fallback_catalog != blank -%}
+              {%- assign use_tag_fallback = true -%}
+            {%- endif -%}
+
+            {%- if use_tag_fallback -%}
+              {%- assign product_iter = fallback_catalog.products -%}
+            {%- else -%}
+              {%- assign product_iter = coll.products -%}
+            {%- endif -%}
+
+            {%- for product in product_iter -%}
+              {%- if use_tag_fallback -%}
+                {%- unless product.tags contains series_tag -%}
+                  {%- continue -%}
+                {%- endunless -%}
+              {%- endif -%}
+
+              {%- unless product.tags contains 'engraving-fee' -%}
+                {%- unless product.available -%}
+                  {%- continue -%}
+                {%- endunless -%}
+
+                {%- assign pid_check = "," | append: product.id | append: "," -%}
+                {%- if seen_product_ids contains pid_check -%}
+                  {%- continue -%}
+                {%- endif -%}
+
+                {%- assign product_series = "" -%}
+                {%- for pc in product.collections -%}
+                  {%- assign pc_check = pc.handle | prepend: "," | append: "," -%}
+                  {%- assign handles_check = series_handles | prepend: "," | append: "," -%}
+                  {%- if handles_check contains pc_check -%}
+                    {%- if product_series == "" -%}
+                      {%- assign product_series = pc.handle -%}
+                    {%- else -%}
+                      {%- assign product_series = product_series | append: " " | append: pc.handle -%}
+                    {%- endif -%}
                   {%- endif -%}
+                {%- endfor -%}
 
-                  {%- comment -%} Build series membership from product.collections {%- endcomment -%}
-                  {%- assign product_series = "" -%}
-                  {%- for pc in product.collections -%}
-                    {%- assign pc_check = pc.handle | prepend: "," | append: "," -%}
-                    {%- assign handles_check = series_handles | prepend: "," | append: "," -%}
-                    {%- if handles_check contains pc_check -%}
+                {%- if product_series == "" -%}
+                  {%- for sb in series_blocks -%}
+                    {%- assign sb_tag = sb.settings.series_tag -%}
+                    {%- assign sb_handle = sb.settings.collection.handle -%}
+                    {%- if sb_tag != blank and sb_handle != blank and product.tags contains sb_tag -%}
                       {%- if product_series == "" -%}
-                        {%- assign product_series = pc.handle -%}
+                        {%- assign product_series = sb_handle -%}
+                      {%- elsif product_series contains sb_handle -%}
                       {%- else -%}
-                        {%- assign product_series = product_series | append: " " | append: pc.handle -%}
+                        {%- assign product_series = product_series | append: " " | append: sb_handle -%}
                       {%- endif -%}
                     {%- endif -%}
                   {%- endfor -%}
+                {%- endif -%}
 
-                  {%- assign variant = product.selected_or_first_available_variant -%}
-                  {%- assign global_index = global_index | plus: 1 -%}
-                  <div
-                    class="bundle-card"
-                    ref="cards[]"
-                    role="button"
-                    tabindex="0"
-                    aria-pressed="false"
-                    data-product-id="{{ product.id }}"
-                    data-variant-id="{{ variant.id }}"
-                    data-price="{{ variant.price }}"
-                    data-compare-price="{{ variant.compare_at_price | default: variant.price }}"
-                    data-available="{{ product.available }}"
-                    data-title="{{ product.title | escape }}"
-                    data-image="{{ product.featured_image | image_url: width: 100 }}"
-                    data-series="{{ product_series }}"
-                    on:click="/handleCardClick"
-                  >
-                    {%- comment -%} Checkbox Overlay {%- endcomment -%}
-                    <div class="bundle-card__checkbox">
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <polyline points="20 6 9 17 4 12"></polyline>
-                      </svg>
-                    </div>
-
-                    {%- comment -%} Product Image {%- endcomment -%}
-                    <div class="bundle-card__image">
-                      {%- if product.featured_image != blank -%}
-                        {%- liquid
-                          assign img_loading = 'lazy'
-                          assign img_priority = 'auto'
-                          if global_index <= 8
-                            assign img_loading = 'eager'
-                            assign img_priority = 'high'
-                          endif
-                        -%}
-                        <img
-                          srcset="{{ product.featured_image | image_url: width: 300 }} 300w, {{ product.featured_image | image_url: width: 500 }} 500w, {{ product.featured_image | image_url: width: 700 }} 700w"
-                          sizes="(max-width: 500px) 50vw, (max-width: 750px) 50vw, (max-width: 1300px) 33vw, 25vw"
-                          src="{{ product.featured_image | image_url: width: 500 }}"
-                          width="500"
-                          height="500"
-                          alt="{{ product.title | escape }}"
-                          loading="{{ img_loading }}"
-                          fetchpriority="{{ img_priority }}"
-                          decoding="async"
-                        >
-                      {%- endif -%}
-
-                      {%- if product.compare_at_price and product.compare_at_price > product.price -%}
-                        {%- assign discount = product.compare_at_price | minus: product.price -%}
-                        {%- assign percent = discount | times: 100 | divided_by: product.compare_at_price -%}
-                        <span class="bundle-card__badge">{{ percent }}% OFF</span>
-                      {%- endif -%}
-                    </div>
-
-                    {%- comment -%} Product Info {%- endcomment -%}
-                    <div class="bundle-card__info">
-                      <h3 class="bundle-card__title">{{ product.title }}</h3>
-                      <div class="bundle-card__price">
-                        <span class="bundle-card__current-price">{{ variant.price | money }}</span>
-                        {%- if variant.compare_at_price and variant.compare_at_price > variant.price -%}
-                          <span class="bundle-card__compare-price">{{ variant.compare_at_price | money }}</span>
-                        {%- endif -%}
-                      </div>
-                    </div>
-                  </div>
-
-                  {%- comment -%} Mark this product as rendered {%- endcomment -%}
-                  {%- assign seen_product_ids = seen_product_ids | append: product.id | append: "," -%}
-                {%- endunless -%}
-              {%- endfor -%}
-            {%- endif -%}
+                {%- assign global_index = global_index | plus: 1 -%}
+                {% render 'bundle-builder-card', product: product, global_index: global_index, product_series: product_series %}
+                {%- assign seen_product_ids = seen_product_ids | append: product.id | append: "," -%}
+              {%- endunless -%}
+            {%- endfor -%}
           {%- endfor -%}
         </div>
       {%- else -%}
@@ -426,6 +402,12 @@
           "id": "tab_label",
           "label": "Tab Label",
           "info": "Display name on the filter tab (e.g. 'MO', 'Supreme', 'Retro')"
+        },
+        {
+          "type": "text",
+          "id": "series_tag",
+          "label": "Series tag fallback",
+          "info": "Product tag used when the collection is empty on dev stores (e.g. series:mo)"
         }
       ]
     },
