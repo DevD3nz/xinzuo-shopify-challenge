@@ -79,7 +79,7 @@
       {%- if section.settings.subheading != blank -%}
         <p class="bundle-builder__subheading">{{ section.settings.subheading }}</p>
       {%- endif -%}
-      <div class="bundle-builder__progress" ref="progressText">
+      <div class="bundle-builder__progress" ref="progressText" aria-live="polite" aria-atomic="true">
         Select at least {{ min_items }} items to unlock your discount (15%)
       </div>
     </div>
@@ -88,13 +88,15 @@
     {%- if has_series -%}
       <div class="bundle-tabs-wrapper" ref="tabsWrapper">
         <div class="bundle-tabs-track">
-          <div class="bundle-tabs" ref="tabsContainer">
+          <div class="bundle-tabs" ref="tabsContainer" role="tablist" aria-label="Knife series">
             <button
               class="bundle-tabs__tab bundle-tabs__tab--active"
               ref="tabs[]"
+              role="tab"
               data-series="all"
               on:click="/handleTabClick/all"
               aria-pressed="true"
+              aria-selected="true"
             >
               All
             </button>
@@ -105,9 +107,11 @@
                 <button
                   class="bundle-tabs__tab"
                   ref="tabs[]"
+                  role="tab"
                   data-series="{{ series_handle }}"
                   on:click="/handleTabClick/{{ series_handle }}"
                   aria-pressed="false"
+                  aria-selected="false"
                   {{ block.shopify_attributes }}
                 >
                   {{ series_label }}

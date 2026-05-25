@@ -159,8 +159,9 @@
             throw new Error('Failed to add');
           }
         } catch (err) {
-          cartBtn.textContent = 'View Options';
-          cartBtn.addEventListener('click', () => window.location.href = productUrl, { once: true });
+          cartBtn.textContent = 'Try Again';
+          cartBtn.disabled = false;
+          cartBtn.addEventListener('click', () => { window.location.href = productUrl; }, { once: true });
         }
       });
       

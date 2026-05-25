@@ -6,9 +6,16 @@
 (function() {
   'use strict';
 
-  // Constants
-  const FEE_ONE_LINE = 43781283217459;
-  const FEE_TWO_LINES = 43781283250227;
+  // Constants — resolved at runtime from engraving-fee product (see engraving-fee-config.liquid)
+  function getEngravingFeeIds() {
+    const config = window.XZ_ENGRAVING || {};
+    const dataEl = document.getElementById('engraving-modal-data');
+    return {
+      one: Number(config.feeOne || dataEl?.dataset.feeOne || 0),
+      two: Number(config.feeTwo || dataEl?.dataset.feeTwo || 0),
+    };
+  }
+
   const MAX_LENGTH = 20;
 
   // State
@@ -176,6 +183,8 @@
       });
       
       // Step 3: Add engraving fee (multiply by knife count for sets)
+      const { one: FEE_ONE_LINE, two: FEE_TWO_LINES } = getEngravingFeeIds();
+      if (!FEE_ONE_LINE) throw new Error('Engraving fee product not configured');
       const feeVariantId = isTwoLines ? FEE_TWO_LINES : FEE_ONE_LINE;
       await fetch('/cart/add.js', {
         method: 'POST',
@@ -224,6 +233,7 @@
    */
   async function cleanupOrphanedFees() {
     try {
+      const { one: FEE_ONE_LINE, two: FEE_TWO_LINES } = getEngravingFeeIds();
       const response = await fetch('/cart.js');
       const cart = await response.json();
       

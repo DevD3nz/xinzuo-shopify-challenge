@@ -4,3 +4,6 @@
 node_modules/
 .shopify/
 *.log
+test-results/
+playwright-report/
+tests/output/

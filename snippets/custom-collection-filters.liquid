@@ -1352,6 +1352,22 @@
           }
         });
 
+        const productGrid = document.querySelector('.product-grid');
+        let emptyState = document.getElementById('collection-filter-empty');
+        if (!emptyState && productGrid) {
+          emptyState = document.createElement('div');
+          emptyState.id = 'collection-filter-empty';
+          emptyState.className = 'collection-filter-empty';
+          emptyState.style.cssText = 'display:none;text-align:center;padding:48px 20px;color:#c9c9cc;font-family:Albert Sans,sans-serif;';
+          emptyState.innerHTML = '<p style="margin:0 0 12px;font-size:18px;">No products match these filters.</p><p style="margin:0;font-size:14px;">Try clearing a filter or <a href="/collections/all-products" style="color:#c5a572">browse all products</a>.</p>';
+          productGrid.parentNode.insertBefore(emptyState, productGrid.nextSibling);
+        }
+        if (emptyState) {
+          const showEmpty = hasActiveFilters && matchingProducts.length === 0;
+          emptyState.style.display = showEmpty ? 'block' : 'none';
+          if (productGrid) productGrid.style.display = showEmpty ? 'none' : '';
+        }
+
         // Handle Load More button based on filter state
         var loadMoreWrapper = document.getElementById('load-more-wrapper');
         var loadMoreBtn = document.getElementById('load-more-collection');

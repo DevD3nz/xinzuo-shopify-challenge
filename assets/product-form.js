@@ -161,7 +161,6 @@ class ProductFormComponent extends Component {
    */
   handleSubmit(event) {
     event.preventDefault();
-    console.log(event)
 
     const form = this.querySelector("form");
     const formData = new FormData(form);
@@ -170,8 +169,9 @@ class ProductFormComponent extends Component {
 
     const SHOW_FEE = window.engravingSelected && window.engravingText;
     const SHOW_FEE2 = window.engravingSecondSelected && window.engravingText2;
-    const FEE_ID = 43781283217459;
-    const FEE_ID2 = 43781283250227;
+    const feeIds = window.XZ_ENGRAVING || {};
+    const FEE_ID = Number(feeIds.feeOne || document.getElementById('engraving-modal-data')?.dataset.feeOne || 0);
+    const FEE_ID2 = Number(feeIds.feeTwo || document.getElementById('engraving-modal-data')?.dataset.feeTwo || 0);
     const knife_num = window.knife_num;
 
     const addMainProduct = () => {
@@ -236,7 +236,14 @@ class ProductFormComponent extends Component {
           })
         );
       })
-      .catch(err => console.error("Add to cart error:", err));
+      .catch((err) => {
+        console.error("Add to cart error:", err);
+        const btn = this.querySelector('[ref="addToCartButton"], .add-to-cart-button, button[type="submit"]');
+        if (btn) {
+          btn.textContent = 'Error — try again';
+          setTimeout(() => { btn.textContent = btn.dataset.defaultText || 'Add to cart'; }, 2500);
+        }
+      });
   }
 
   /**

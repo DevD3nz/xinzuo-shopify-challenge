@@ -1,0 +1,22 @@
+{%- liquid
+  assign engraving_product = all_products['engraving-fee']
+  assign fee_one = ''
+  assign fee_two = ''
+
+  if engraving_product != blank
+    for variant in engraving_product.variants
+      assign option_label = variant.option1 | downcase
+      if option_label contains 'one'
+        assign fee_one = variant.id
+      elsif option_label contains 'two'
+        assign fee_two = variant.id
+      endif
+    endfor
+  endif
+-%}
+<script>
+  window.XZ_ENGRAVING = {
+    feeOne: {{ fee_one | default: 0 | json }},
+    feeTwo: {{ fee_two | default: 0 | json }}
+  };
+</script>

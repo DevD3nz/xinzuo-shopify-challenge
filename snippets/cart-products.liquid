@@ -181,7 +181,7 @@
                 </tr>
               {%- endif -%}
 
-              {% if item.variant_id != 43781283217459 and item.variant_id != 43781283250227 %}
+              {% unless item.product.handle == 'engraving-fee' or item.product.handle == 'knife-set-engraving-fee' %}
                 <tr
                   role="row"
                   class="cart-items__table-row{% if item.parent_relationship.parent != null %} cart-items__nested-line{% endif %}{% if is_bundle_item %} cart-bundle-item{% endif %}"
@@ -700,7 +700,7 @@
                     </td>
                   {% comment %} {% endif %} {% endcomment %}
                 </tr>
-              {% endif %}
+              {% endunless %}
 
               {%- comment -%} Track bundle ID for next iteration {%- endcomment -%}
               {%- if is_bundle_item -%}

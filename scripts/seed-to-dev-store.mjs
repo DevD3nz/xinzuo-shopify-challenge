@@ -147,19 +147,69 @@ function collectReferencedProductHandles() {
   return handles;
 }
 
+function collectReferencedArticleHandles() {
+  const handles = new Set();
+  const sources = [
+    ...seed.pages.map((p) => p.body_html || ''),
+    ...seed.articles.map((a) => a.body_html || ''),
+    ...seed.collections.map((c) => c.body_html || ''),
+  ];
+  for (const html of sources) {
+    for (const m of html.matchAll(/\/blogs\/news\/([\w-]+)/g)) handles.add(m[1]);
+  }
+  return handles;
+}
+
+/** Map bundle-builder / manual collection handles to product tag filters. */
+const CUSTOM_COLLECTION_TAGS = {
+  'xinzuo-mo-series-knives': 'series:mo',
+  'xinzuo-lan-series-knives': 'series:lan',
+  'hezhen-supreme-series-knives': 'series:supreme',
+  'hezhen-retro-series-knives': 'series:retro',
+  'zhen-x05z-series': 'series:x05z',
+  'hezhen-zhen-series-knives': 'series:zhen',
+  'b27-yi-series': 'series:yi',
+  'b13r-yu-series': 'series:yu',
+  'best-sellers': 'best-seller',
+  'accessories': 'accessories',
+  'knife-sets': 'knife-set',
+};
+
+function productsForCustomCollection(collectionHandle, products) {
+  const tagFilter = CUSTOM_COLLECTION_TAGS[collectionHandle];
+  if (tagFilter) {
+    return products.filter((p) => (p.tags || '').includes(tagFilter));
+  }
+  const slug = collectionHandle.replace(/-knives$/, '').replace(/-series$/, '');
+  return products.filter((p) => p.handle.includes(slug) || (p.tags || '').includes(slug));
+}
+
 let productsToCreate;
 if (FULL) {
   productsToCreate = seed.products;
 } else {
   const referenced = collectReferencedProductHandles();
+  referenced.add('engraving-fee');
+  referenced.add('knife-set-engraving-fee');
   const byHandle = new Map(seed.products.map((p) => [p.handle, p]));
-  // Always include products referenced by the theme, then fill remaining slots
   const priority = [...referenced].map((h) => byHandle.get(h)).filter(Boolean);
   const remaining = seed.products.filter((p) => !referenced.has(p.handle));
   productsToCreate = [...priority, ...remaining.slice(0, Math.max(0, SLIM_PRODUCTS - priority.length))];
   console.log(`Slim seed: ${priority.length} theme-referenced + ${productsToCreate.length - priority.length} backfill = ${productsToCreate.length} products`);
 }
-const articlesToCreate = FULL ? seed.articles : seed.articles.slice(0, SLIM_ARTICLES);
+
+let articlesToCreate;
+if (FULL) {
+  articlesToCreate = seed.articles;
+} else {
+  const referencedArticles = collectReferencedArticleHandles();
+  const byHandle = new Map(seed.articles.map((a) => [a.handle, a]));
+  const priority = [...referencedArticles].map((h) => byHandle.get(h)).filter(Boolean);
+  const seen = new Set(priority.map((a) => a.handle));
+  const backfill = seed.articles.filter((a) => !seen.has(a.handle)).slice(0, Math.max(0, SLIM_ARTICLES - priority.length));
+  articlesToCreate = [...priority, ...backfill];
+  console.log(`Slim articles: ${priority.length} linked from pages + ${backfill.length} backfill = ${articlesToCreate.length} articles`);
+}
 
 console.log(`\n${WRITE ? '✓ WRITE' : 'DRY-RUN'} → ${hostname}`);
 console.log(`Mode: ${FULL ? 'FULL' : 'SLIM'}`);
@@ -350,6 +400,25 @@ if (WRITE) {
   });
   created.collections = res.ok;
   console.log(`  ${res.ok} created, ${res.fail} failed`);
+
+  // Assign products to manual collections so dev-store grids aren't empty.
+  const liveProducts = await paginate('products.json?fields=id,handle,tags');
+  const liveCustom = await paginate('custom_collections.json?fields=id,handle');
+  let collectsAdded = 0;
+  const collectRes = await pool(liveCustom, async (collection) => {
+    const matches = productsForCustomCollection(collection.handle, liveProducts).slice(0, 24);
+    for (const product of matches) {
+      try {
+        await api('POST', 'collects.json', {
+          collect: { product_id: product.id, collection_id: collection.id },
+        });
+        collectsAdded++;
+      } catch {
+        // Ignore duplicate collects on re-run.
+      }
+    }
+  }, 2);
+  console.log(`  ${collectsAdded} product collects assigned (${collectRes.fail} collection errors)`);
 } else created.collections = seed.collections.length;
 
 // --- PAGES (parallel) ---

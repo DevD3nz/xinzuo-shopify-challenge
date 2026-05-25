@@ -3,6 +3,12 @@
   Allows users to add custom laser engraving to knives directly from the cart
 {% endcomment %}
 
+{%- assign engraving_product = all_products['engraving-fee'] -%}
+{%- if engraving_product != blank -%}
+  {%- assign engraving_fee_one = engraving_product.variants | where: 'option1', 'One Line' | first -%}
+  {%- assign engraving_fee_two = engraving_product.variants | where: 'option1', 'Two Line' | first -%}
+{%- endif -%}
+
 <dialog class="engraving-modal-dialog" id="engraving-modal-dialog">
   <div class="engraving-modal" id="engraving-modal">
     <div class="engraving-modal__header">
@@ -87,8 +93,8 @@
 
 <!-- Hidden data for JS -->
 <div id="engraving-modal-data" 
-  data-fee-one="{{ 43781283217459 }}" 
-  data-fee-two="{{ 43781283250227 }}"
+  data-fee-one="{{ engraving_fee_one.id | default: '' }}"
+  data-fee-two="{{ engraving_fee_two.id | default: '' }}"
   style="display: none;">
 </div>
 

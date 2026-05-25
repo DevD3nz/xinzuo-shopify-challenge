@@ -61,7 +61,17 @@
       "name": "Home Products",
       "settings": {
         "heading": "Best Selling Kitchen Knives",
-        "products": [],
+        "products": [
+          "hezhen-supreme-series-8-chef-knife",
+          "hezhen-retro-series-8-5-inch-chef-knife",
+          "hezhen-elegant-series-8-5-inch-chef-knife",
+          "zhen-pm8o-series-8-5-inch-sakimaru-knife",
+          "yu-series-8-inch-chef-knife",
+          "xinzuo-mo-chef-knife-8-5-inch",
+          "xinzuo-lan-chef-knife-8-5-inch",
+          "hezhen-zhen-series-8-5-inch-bunka-knife",
+          "zhen-xz05-series-8-inch-chef-knife"
+        ],
         "color_scheme": ""
       }
     }

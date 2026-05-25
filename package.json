@@ -1,0 +1,14 @@
+{
+  "name": "xinzuo-theme-snapshot",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test:ui": "playwright test",
+    "test:walkthrough": "playwright test --grep @walkthrough",
+    "test:screenshots": "playwright test --grep \"@before|@after|@walkthrough\" && node scripts/copy-submission-screenshots.mjs",
+    "test:screenshots:headed": "playwright test --grep \"@before|@after|@walkthrough\" --headed && node scripts/copy-submission-screenshots.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.52.0"
+  }
+}

@@ -300,8 +300,15 @@ class CartItemsComponent extends Component {
     const items = cartResponse.items;
     if (!items) return;
 
-    const FEE_ONE_LINE = 43781283217459;
-    const FEE_TWO_LINES = 43781283250227;
+    const { one: FEE_ONE_LINE, two: FEE_TWO_LINES } = (() => {
+      const config = window.XZ_ENGRAVING || {};
+      const dataEl = document.getElementById('engraving-modal-data');
+      return {
+        one: Number(config.feeOne || dataEl?.dataset.feeOne || 0),
+        two: Number(config.feeTwo || dataEl?.dataset.feeTwo || 0),
+      };
+    })();
+    if (!FEE_ONE_LINE) return;
 
     // Calculate required quantities for BOTH fee types
     let requiredOneLine = 0;

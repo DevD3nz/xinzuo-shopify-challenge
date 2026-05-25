@@ -26,6 +26,8 @@
     {%- if form.errors -%}
       <div
         class="contact-form__error"
+        role="alert"
+        aria-live="assertive"
         tabindex="-1"
         autofocus
       >
@@ -39,6 +41,8 @@
     {%- if form.posted_successfully? -%}
       <div
         class="contact-form__success"
+        role="status"
+        aria-live="polite"
         tabindex="-1"
         autofocus
       >

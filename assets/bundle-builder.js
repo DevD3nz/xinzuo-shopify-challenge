@@ -270,6 +270,7 @@ class BundleBuilderComponent extends Component {
       const isActive = tab.dataset.series === this.#activeTab;
       tab.classList.toggle('bundle-tabs__tab--active', isActive);
       tab.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+      tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
     }
   }
 
